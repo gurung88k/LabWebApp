@@ -1,7 +1,12 @@
-using LabWebApp.Data;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using AspNet.Security.OAuth.GitHub;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using LabWebApp.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,11 +16,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+// Add ASP.NET Identity services
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// Add GitHub authentication
-builder.Services.AddAuthentication().AddGitHub(options =>
+// Add authentication services
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultChallengeScheme = "GitHub"; // Ensure this matches your GitHub authentication scheme
+})
+.AddGitHub(options =>
 {
     options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"];
     options.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"];
@@ -25,7 +36,7 @@ builder.Services.AddAuthentication().AddGitHub(options =>
     {
         if (context.AccessToken != null)
         {
-            context.Identity?.AddClaim(new System.Security.Claims.Claim("access_token", context.AccessToken));
+            context.Identity?.AddClaim(new Claim("access_token", context.AccessToken));
         }
         return Task.CompletedTask;
     };
@@ -43,7 +54,6 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
