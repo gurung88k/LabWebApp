@@ -29,6 +29,11 @@ namespace DotNetDrinks.Controllers
             return View("Privacy");
         }
 
+        public IActionResult About() // New Action Method
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

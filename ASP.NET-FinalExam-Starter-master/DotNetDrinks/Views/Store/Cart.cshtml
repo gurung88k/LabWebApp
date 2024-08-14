@@ -1,29 +1,32 @@
-﻿@model IEnumerable<DotNetDrinks.Models.Cart>
+﻿
+@model IEnumerable<DotNetDrinks.Models.Cart>
 
-@{
+    @{
     ViewData["Title"] = "Cart";
-}
+    }
 
-<h1>My Shopping Cart</h1>
+    <h1>My Shopping Cart</h1>
 
-<table class="table table-striped table-hover">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Product)
-            </th>
-            <th></th>
-            <th>
-                @Html.DisplayNameFor(model => model.Quantity)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Product)
+                </th>
+                <th></th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Quantity)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Price)
+                </th>
+                <!-- Add a new header for the Line Item Total -->
+                <th class="text-right">Line Item Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
         {
             <tr>
                 <td>
@@ -44,18 +47,43 @@
                     @* use generic C format provider to format decimal to currency *@
                     @item.Price.ToString("C")
                 </td>
+                <!-- Add the new column to display the line item total -->
+                <td class="text-right">
+                    @* Calculate and display the line item total *@
+                    @(item.Quantity * item.Price).ToString("C")
+                </td>
                 <td>
                     @* asp-controller by default is the same as the folder where view is *@
                     <a asp-action="RemoveFromCart" asp-route-id="@item.Id">Delete</a>
                 </td>
             </tr>
         }
-        <tr>
-            <td colspan="4" class="text-right">@ViewBag.TotalAmount</td>
-            <td>
-                <a class="btn btn-primary" asp-action="Index">Continue Shopping</a>
-                <a class="btn btn-success" asp-action="Checkout">Checkout</a>
-            </td>
-        </tr>
-    </tbody>
-</table>
+            <tr>
+                <td colspan="5" class="text-right">@ViewBag.TotalAmount</td>
+                <td>
+                    <a class="btn btn-primary" asp-action="Index">Continue Shopping</a>
+                    <a class="btn btn-success" asp-action="Checkout">Checkout</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    Explanation of Changes:
+    New Column for Line Item Total:
+
+    A new <th> element was added in the table header (<thead>
+        ) for the "Line Item Total" column.
+        A corresponding
+    <td> element was added in the table body (<tbody>
+        ) to calculate and display the line item total as Quantity * Price.
+        Currency Formatting:
+
+        The line item total is calculated using @(item.Quantity * item.Price) and then formatted as currency using .ToString("C").
+        Right-Aligning the Column:
+
+        The new column is right-aligned using class="text-right" on the
+    <td>
+        element.
+        Testing:
+        Ensure that each row in your shopping cart now displays the correct line item total.
+        Verify that the total is formatted as currency and that it is right-aligned.
+        These changes should meet the requirements for modifying the cart view. If you need further adjustments or have any other questions, feel free to ask!
